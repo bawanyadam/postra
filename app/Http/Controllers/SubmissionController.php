@@ -49,6 +49,7 @@ class SubmissionController
             'submissions' => $subs,
             'page' => $page,
             'hasNext' => $hasNext,
+            'title' => 'Submissions: ' . (string)$formRow['name'],
         ]);
     }
 
@@ -76,6 +77,7 @@ class SubmissionController
             'submissions' => $subs,
             'page' => $page,
             'hasNext' => $hasNext,
+            'title' => 'Submissions',
         ]);
     }
 
@@ -88,7 +90,7 @@ class SubmissionController
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$row) { http_response_code(404); echo 'Submission not found'; return; }
-        \App\Http\View::render('submissions/show', ['submission' => $row]);
+        \App\Http\View::render('submissions/show', ['submission' => $row, 'title' => 'Submission #' . (string)$id]);
     }
 
     public function exportAllCsv(): void

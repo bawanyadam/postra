@@ -54,7 +54,7 @@ class FormController
         $stmt->execute([$id]);
         $form = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$form) { http_response_code(404); echo 'Form not found'; return; }
-        \App\Http\View::render('forms/show', compact('form'));
+        \App\Http\View::render('forms/show', ['form' => $form, 'title' => 'Form: ' . (string)$form['name']]);
     }
 
     public function updateSettings(array $params): void

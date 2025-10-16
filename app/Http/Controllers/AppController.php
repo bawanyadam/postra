@@ -20,6 +20,6 @@ class AppController
         } catch (\Throwable $e) {
             $dbStatus = 'Error: ' . $e->getMessage();
         }
-        \App\Http\View::render('app/dashboard', compact('dbStatus'));
+        \App\Http\View::render('app/dashboard', ['dbStatus' => $dbStatus, 'title' => 'Dashboard']);
     }
 }

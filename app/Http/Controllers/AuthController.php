@@ -11,7 +11,7 @@ class AuthController
     public function showLogin(): void
     {
         Session::start();
-        \App\Http\View::render('auth/login');
+        \App\Http\View::render('auth/login', ['title' => 'Login']);
     }
 
     public function login(): void

@@ -1,66 +1,63 @@
 Postra
-===========
+======
 
-Internal form processing.
+A tiny, zero-framework PHP 8 app for receiving website form submissions, storing them in MySQL, and forwarding them by email. It ships with a clean Bootstrap UI for managing Projects, Forms, and Submissions.
 
-Quick start
------------
+Key features
+------------
 
-- Copy `.env.example` to `.env` and edit DB creds.
-- Ensure a MySQL 8 database is reachable per `DB_DSN`.
-- Run the migration script:
+- Admin UI (login/logout, CSRF-protected)
+- Projects and Forms management
+- Public capture endpoint: `POST /form/{public_id}`
+- Email delivery via SendGrid (encrypted at rest)
+- CSV export (global submissions and per form)
+- Pagination for submissions lists
+- Simple, readable email template (HTML + text) with Reply-To detection
 
-  `php scripts/migrate.php`
-
-- Seed an admin user (Argon2id hash stored in DB):
-
-  `php scripts/seed_admin.php admin yourpassword`
-
-- Serve the app locally (PHP dev server):
-
-  `php -S localhost:8000 -t public`
-
-- Visit `http://localhost:8000/app` for the admin placeholder.
-
-Test submit
------------
-
-Insert a test form row, then submit to it:
-
-1. Create a project and form (example SQL):
-
-   `INSERT INTO projects (public_id, name) VALUES ('01TESTPROJECTULID000000000000', 'Demo');`
-
-   `INSERT INTO forms (public_id, project_id, name, recipient_email, redirect_url) VALUES ('01TESTFORMULID00000000000000', 1, 'Contact', 'you@example.com', '/app');`
-
-2. Post a form to `http://localhost:8000/form/01TESTFORMULID00000000000000`.
-
-Notes
+Stack
 -----
 
-- This MVP uses a tiny internal router and PDO. We can swap in FastRoute and other libs once dependencies are installed.
-- Email delivery via SendGrid and full admin UI come in next phases.
-  - To configure SendGrid: insert an API key into `api_credentials` table.
-    - For a global key: encrypt with `POSTRA_ENCRYPTION_KEY_BASE64` (Sodium secretbox) and insert a row with `provider='sendgrid', scope='global', scope_ref_id=NULL`.
-    - You can also scope by project or per form.
+- PHP 8.x (PDO, cURL, Sodium)
+- MySQL 8.x
+- Apache 2.4 (or PHP dev server for local)
+- Bootstrap 5 via CDN
 
+Directory layout
+----------------
 
-Production setup (Ubuntu + Apache + PHP 8 + MySQL)
+- `public/` — front controller (`index.php`) and web root
+- `app/` — controllers, services, infrastructure, views
+- `migrations/` — SQL schema
+- `scripts/` — migration and admin seeding
+
+Quick start (local)
+-------------------
+
+- Copy `.env.example` to `.env` and set DB creds.
+- Ensure a MySQL 8 database is reachable per `DB_DSN`.
+- Install dependencies: `composer install`
+- Run migrations: `php scripts/migrate.php`
+- Create an admin user: `php scripts/seed_admin.php admin yourpassword`
+- Start dev server: `php -S 0.0.0.0:8000 -t public`
+- Visit `http://localhost:8000/app`
+
+Production Setup (Ubuntu + Apache + PHP 8 + MySQL)
 --------------------------------------------------
 
-Prereqs: A clean server with Ubuntu, Apache 2.4, PHP 8.x, and MySQL 8 running. Ensure you have sudo access.
+Prereqs: Ubuntu, Apache 2.4, PHP 8.x, MySQL 8. You need sudo access.
 
-1) Install required packages
+1) Packages
 
 ```
 sudo apt update
 sudo apt install -y git unzip curl \
-  php php-cli php-mbstring php-xml php-curl php-mysql php-sqlite3 php-zip php-intl
+  apache2 \
+  php php-cli php-mbstring php-xml php-curl php-mysql php-zip php-intl
 ```
 
-- Optional but recommended: ensure sodium is enabled (usually built-in on Ubuntu’s PHP packages).
+Sodium is usually compiled into Ubuntu PHP. Verify with: `php -i | grep -i sodium`.
 
-2) Install Composer
+2) Composer
 
 ```
 cd /usr/local/bin
@@ -70,47 +67,51 @@ rm composer-setup.php
 composer --version
 ```
 
-3) Deploy Postra
+3) Deploy code
 
 ```
 sudo mkdir -p /var/www/postra
 sudo chown $USER:$USER /var/www/postra
 cd /var/www/postra
-git clone <your_repo_url> .
-composer install
+git clone https://github.com/bawanyadam/postra.git .
+composer install --no-dev -o
 cp .env.example .env
 ```
 
 4) Configure environment
 
-- Edit `.env` and set:
-  - `APP_URL` to your site URL (https preferred)
-  - `DB_DSN`, `DB_USER`, `DB_PASS` to point to your MySQL instance
-  - Generate encryption key (Sodium secretbox) and add to `POSTRA_ENCRYPTION_KEY_BASE64`:
+Edit `.env`:
+
+- `APP_ENV=production`
+- `APP_URL=https://your-domain`
+- `DB_DSN=mysql:host=127.0.0.1;port=3306;dbname=postra;charset=utf8mb4`
+- `DB_USER=postra` and `DB_PASS=...`
+- `SESSION_SECRET=` set to a random string (32+ chars)
+- Generate encryption key for secrets and set `POSTRA_ENCRYPTION_KEY_BASE64`:
 
 ```
 php -r 'echo base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES)), PHP_EOL;'
 ```
 
-5) Create database and run migrations
+Optional email identity (defaults shown):
+
+- `POSTRA_FROM_EMAIL=submission@postra.to`
+- `POSTRA_FROM_NAME=Postra`
+
+5) Database and admin
 
 ```
 php scripts/migrate.php
-```
-
-6) Seed an admin user
-
-```
 php scripts/seed_admin.php admin StrongPasswordHere
 ```
 
-7) Apache vhost
+6) Apache vhost
 
 Create `/etc/apache2/sites-available/postra.conf`:
 
 ```
 <VirtualHost *:80>
-    ServerName your-domain.example
+    ServerName your-domain
     DocumentRoot /var/www/postra/public
 
     <Directory /var/www/postra/public>
@@ -131,9 +132,9 @@ sudo a2ensite postra
 sudo systemctl reload apache2
 ```
 
-8) Add public/.htaccess for routing
+7) Routing (.htaccess)
 
-Create `public/.htaccess` with:
+If not using a global rewrite rule, add `public/.htaccess`:
 
 ```
 RewriteEngine On
@@ -142,19 +143,90 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 ```
 
-9) Secure
-
-- Set correct ownership (if serving under www-data):
+8) Permissions
 
 ```
 sudo chown -R www-data:www-data /var/www/postra
 ```
 
-- Ensure only necessary ports are open (80/443). Consider enabling HTTPS with Let’s Encrypt (certbot).
+First Run
+---------
 
-10) First run
+- Visit `https://your-domain/app` and log in with the admin you seeded.
+- Go to Settings → Email, paste your SendGrid API key, and send a test.
+- Create a Project and a Form.
 
-- Visit `http://your-domain/app` and sign in with the seeded admin user.
-- Go to Settings → Email to add your SendGrid API key and send a test.
-- Create a Project and a Form; use the provided HTML snippet to test submissions.
-# postra
+Embed Snippet
+-------------
+
+Use the Action URL shown on the form page. Example:
+
+```
+<form action="https://your-domain/form/01HABCDEFULIDEXAMPLE000000" method="POST">
+  <input type="text" name="name" required>
+  <input type="email" name="email" required>
+  <textarea name="message" required></textarea>
+  <button type="submit">Send</button>
+</form>
+```
+
+Exports
+-------
+
+- Global submissions → “Export CSV” (`/app/submissions/export.csv`)
+- Per-form submissions → “Export CSV” (`/app/forms/{id}/submissions/export.csv`)
+
+Environment Reference
+---------------------
+
+- `APP_ENV` — `production` or `local`
+- `APP_URL` — base URL used in embed snippets
+- `DB_DSN`, `DB_USER`, `DB_PASS`
+- `SESSION_SECRET` — random string used for sessions
+- `POSTRA_ENCRYPTION_KEY_BASE64` — base64 key for encrypting secrets
+- `POSTRA_FROM_EMAIL`, `POSTRA_FROM_NAME` — email identity
+
+Troubleshooting
+---------------
+
+- MySQL access denied (1045):
+  - Confirm `DB_USER`/`DB_PASS`; ensure user exists as `'postra'@'localhost'` (or your host) and has privileges.
+
+- Unknown database (1049):
+  - Create DB first or run `php scripts/migrate.php` after pointing `DB_DSN` at an existing server.
+
+- Decryption failed / email test fails:
+  - Ensure `POSTRA_ENCRYPTION_KEY_BASE64` is set before saving the SendGrid key. Regenerate if needed and re-save the key.
+
+- Not Found at your domain root:
+  - Verify vhost points to `/var/www/postra/public` and rewrites to `index.php`.
+
+- Apache error logs:
+  - Check `/var/log/apache2/postra_error.log` (or the path from your vhost).
+
+- Git “dubious ownership” warning:
+  - `git config --global --add safe.directory /var/www/postra`
+
+Updating
+--------
+
+```
+cd /var/www/postra
+git pull --ff-only
+composer dump-autoload -o
+sudo systemctl reload apache2
+```
+
+Security Notes
+--------------
+
+- Sessions are cookie-based and protected with CSRF tokens in forms.
+- SendGrid API keys are stored encrypted using Sodium secretbox with your `POSTRA_ENCRYPTION_KEY_BASE64`.
+- The public capture endpoint accepts only POST and strips any `_postra_*` reserved fields.
+
+Roadmap
+-------
+
+- Allowed-domain enforcement for capture
+- Resend email action from submission view
+- Rate limiting and spam controls (honeypot, timing threshold)
