@@ -83,25 +83,30 @@ class FormController
         if (!$this->requireAuth()) return;
         if (!Csrf::validate($_POST['_csrf'] ?? null)) { http_response_code(400); echo 'Invalid CSRF token'; return; }
         $id = (int)($params[0] ?? 0);
-        $pdo = Connection::pdo();
-        $stmt = $pdo->prepare('SELECT f.id, f.name, f.project_id, f.recipient_email FROM forms f WHERE f.id = ?');
-        $stmt->execute([$id]);
-        $form = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$form) { http_response_code(404); echo 'Form not found'; return; }
+        try {
+            $pdo = Connection::pdo();
+            $stmt = $pdo->prepare('SELECT f.id, f.name, f.project_id, f.recipient_email FROM forms f WHERE f.id = ?');
+            $stmt->execute([$id]);
+            $form = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$form) { http_response_code(404); echo 'Form not found'; return; }
 
-        $cred = new \App\Services\CredentialService();
-        $apiKey = $cred->resolveSendGridKey((int)$form['id'], (int)$form['project_id']);
-        if (!$apiKey) { $_SESSION['flash'] = 'No SendGrid key configured (form/project/global).'; header('Location: /app/forms/' . $id, true, 303); return; }
+            $cred = new \App\Services\CredentialService();
+            $apiKey = $cred->resolveSendGridKey((int)$form['id'], (int)$form['project_id']);
+            if (!$apiKey) { $_SESSION['flash'] = 'No SendGrid key configured (form/project/global).'; header('Location: /app/forms/' . $id, true, 303); return; }
 
-        $subject = 'Postra test — ' . $form['name'];
-        $payload = [ 'name' => 'Jane Doe', 'email' => 'jane@example.com', 'message' => 'This is a test from Postra.' ];
-        $html = '<h1>' . htmlspecialchars($subject) . '</h1><p>This is a test email triggered from the form page.</p><table border="1" cellpadding="6" cellspacing="0">';
-        foreach ($payload as $k => $v) { $html .= '<tr><td>' . htmlspecialchars($k) . '</td><td>' . htmlspecialchars((string)$v) . '</td></tr>'; }
-        $html .= '</table>';
-        $text = $subject . "\n\n" . "name: Jane Doe\nemail: jane@example.com\nmessage: This is a test from Postra.";
-        $mailer = new \App\Infrastructure\Mail\SendGridMailer();
-        $ok = $mailer->send($apiKey, (string)$form['recipient_email'], $subject, $html, $text);
-        $_SESSION['flash'] = $ok ? 'Test email sent to ' . $form['recipient_email'] : 'Failed to send test email.';
+            $payload = [ 'name' => 'Jane Doe', 'email' => 'jane@example.com', 'message' => 'This is a test from Postra.' ];
+            $meta = [
+                'Test Email' => 'Yes',
+                'Form' => (string)$form['name'],
+            ];
+            [$subject, $html, $text] = \App\Services\EmailTemplate::buildSubmissionEmail((string)$form['name'], $payload, $meta);
+            $replyTo = $payload['email'];
+            $mailer = new \App\Infrastructure\Mail\SendGridMailer();
+            $ok = $mailer->send($apiKey, (string)$form['recipient_email'], $subject, $html, $text, $replyTo);
+            $_SESSION['flash'] = $ok ? 'Test email sent to ' . $form['recipient_email'] : 'Failed to send test email.';
+        } catch (\Throwable $e) {
+            $_SESSION['flash'] = 'Failed to send: ' . $e->getMessage();
+        }
         header('Location: /app/forms/' . $id, true, 303);
     }
 }

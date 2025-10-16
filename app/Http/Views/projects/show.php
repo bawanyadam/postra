@@ -3,7 +3,30 @@
     <a href="/app/projects" class="text-decoration-none">← Back</a>
     <h1 class="h3 mb-0 mt-2"><?= htmlspecialchars($project['name']) ?></h1>
   </div>
-  <a href="#newForm" class="btn btn-primary" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="newForm">New Form</a>
+  <div class="d-flex gap-2">
+    <a href="#projectSettings" class="btn btn-outline-secondary" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="projectSettings">Settings</a>
+    <a href="#newForm" class="btn btn-primary" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="newForm">New Form</a>
+  </div>
+</div>
+
+<div class="collapse" id="projectSettings">
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <h2 class="h6">Project Settings</h2>
+      <form method="POST" action="/app/projects/<?= (int)$project['id'] ?>/settings" class="mt-2">
+        <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Support\Csrf::token()) ?>">
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input class="form-control" name="name" value="<?= htmlspecialchars($project['name']) ?>" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" name="description" rows="3"><?= htmlspecialchars((string)($project['description'] ?? '')) ?></textarea>
+        </div>
+        <button class="btn btn-outline-primary" type="submit">Save</button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <div class="collapse mb-4" id="newForm">
@@ -36,4 +59,3 @@
   </a>
 <?php endforeach; ?>
 </div>
-

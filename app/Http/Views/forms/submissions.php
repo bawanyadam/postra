@@ -3,6 +3,7 @@
     <a href="/app/forms/<?= (int)$form['id'] ?>" class="text-decoration-none">← Back to Form</a>
     <h1 class="h4 mt-2 mb-0">Submissions — <?= htmlspecialchars($form['name']) ?></h1>
   </div>
+  <a class="btn btn-outline-secondary" href="/app/forms/<?= (int)$form['id'] ?>/submissions/export.csv">Export CSV</a>
 </div>
 
 <div class="card shadow-sm">

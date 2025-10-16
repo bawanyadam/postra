@@ -1,6 +1,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h3 mb-0">Submissions</h1>
-</div>
+  <a class="btn btn-outline-secondary" href="/app/submissions/export.csv">Export CSV</a>
+ </div>
 
 <div class="card shadow-sm">
   <div class="table-responsive">

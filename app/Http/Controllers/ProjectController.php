@@ -54,7 +54,7 @@ class ProjectController
         if (!$this->requireAuth()) return;
         $id = (int)($params[0] ?? 0);
         $pdo = Connection::pdo();
-        $stmt = $pdo->prepare('SELECT id, name, public_id FROM projects WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT id, name, public_id, description FROM projects WHERE id = ?');
         $stmt->execute([$id]);
         $project = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$project) { http_response_code(404); echo 'Project not found'; return; }
@@ -62,5 +62,28 @@ class ProjectController
         $formsStmt->execute([$id]);
         $forms = $formsStmt->fetchAll(PDO::FETCH_ASSOC);
         \App\Http\View::render('projects/show', compact('project','forms'));
+    }
+
+    public function updateSettings(array $params): void
+    {
+        if (!$this->requireAuth()) return;
+        if (!Csrf::validate($_POST['_csrf'] ?? null)) { http_response_code(400); echo 'Invalid CSRF token'; return; }
+        $id = (int)($params[0] ?? 0);
+        $name = trim((string)($_POST['name'] ?? ''));
+        $description = trim((string)($_POST['description'] ?? ''));
+        if ($name === '') { $_SESSION['flash'] = 'Name cannot be empty.'; header('Location: /app/projects/' . $id, true, 303); return; }
+        $pdo = Connection::pdo();
+        try {
+            $stmt = $pdo->prepare('UPDATE projects SET name = ?, description = ? WHERE id = ?');
+            $stmt->execute([$name, $description !== '' ? $description : null, $id]);
+            $_SESSION['flash'] = 'Project updated.';
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $_SESSION['flash'] = 'A project with that name already exists.';
+            } else {
+                $_SESSION['flash'] = 'Failed to update project: ' . $e->getMessage();
+            }
+        }
+        header('Location: /app/projects/' . $id, true, 303);
     }
 }

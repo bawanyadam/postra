@@ -2,13 +2,18 @@
 
 namespace App\Infrastructure\Mail;
 
+use App\Support\Env;
+
 class SendGridMailer
 {
     public function send(string $apiKey, string $toEmail, string $subject, string $html, string $text, ?string $replyTo = null): bool
     {
+        Env::load();
+        $fromEmail = Env::get('POSTRA_FROM_EMAIL', 'submission@postra.to') ?: 'submission@postra.to';
+        $fromName  = Env::get('POSTRA_FROM_NAME', 'Postra') ?: 'Postra';
         $payload = [
             'personalizations' => [[ 'to' => [[ 'email' => $toEmail ]] ]],
-            'from' => [ 'email' => 'no-reply@postra.local' ],
+            'from' => [ 'email' => $fromEmail, 'name' => $fromName ],
             'subject' => $subject,
             'content' => [
                 [ 'type' => 'text/plain', 'value' => $text ],
@@ -38,4 +43,3 @@ class SendGridMailer
         return $code >= 200 && $code < 300;
     }
 }
-

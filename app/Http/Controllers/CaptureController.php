@@ -26,7 +26,7 @@ class CaptureController
         $pdo = Connection::pdo();
 
         // Look up form by public_id
-        $stmt = $pdo->prepare('SELECT id, name, redirect_url, status FROM forms WHERE public_id = ?');
+        $stmt = $pdo->prepare('SELECT id, name, redirect_url, status, recipient_email FROM forms WHERE public_id = ?');
         $stmt->execute([$publicId]);
         $form = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$form) {
@@ -67,7 +67,12 @@ class CaptureController
         }
         // Attempt email via SendGrid
         try {
-            $this->sendEmail((int)$form['id'], $form['name'], $payload, $form['recipient_email'], $submissionId, $clientIp, $ua);
+            $to = (string)($form['recipient_email'] ?? '');
+            if ($to === '') {
+                error_log('Postra: form has no recipient_email; skipping email send for submission ' . $submissionId);
+            } else {
+                $this->sendEmail((int)$form['id'], $form['name'], $payload, $to, $submissionId, $clientIp, $ua);
+            }
         } catch (\Throwable $e) {
             error_log('Email send failed: ' . $e->getMessage());
         }
@@ -90,32 +95,16 @@ class CaptureController
             return; // skip silently in MVP
         }
 
-        $subject = 'New submission — ' . $formName;
         $meta = [
             'Submission ID' => (string)$submissionId,
             'IP' => (string)$ip,
-            'User-Agent' => (string)$ua,
+            'User Agent' => (string)$ua,
             'Form' => $formName,
         ];
-        $html = '<h1>' . htmlspecialchars($subject) . '</h1><h3>Meta</h3><ul>';
-        foreach ($meta as $k => $v) { $html .= '<li><strong>' . htmlspecialchars($k) . ':</strong> ' . htmlspecialchars($v) . '</li>'; }
-        $html .= '</ul><h3>Fields</h3><table border="1" cellpadding="6" cellspacing="0">';
-        foreach ($payload as $k => $v) {
-            $val = is_array($v) ? implode(', ', array_map('strval', $v)) : (string)$v;
-            $html .= '<tr><td>' . htmlspecialchars($k) . '</td><td>' . htmlspecialchars($val) . '</td></tr>';
-        }
-        $html .= '</table>';
-
-        $text = $subject . "\n\n";
-        foreach ($meta as $k => $v) { $text .= $k . ': ' . $v . "\n"; }
-        $text .= "\nFields:\n";
-        foreach ($payload as $k => $v) {
-            $val = is_array($v) ? implode(', ', array_map('strval', $v)) : (string)$v;
-            $text .= $k . ': ' . $val . "\n";
-        }
+        [$subject, $html, $text] = \App\Services\EmailTemplate::buildSubmissionEmail($formName, $payload, $meta);
 
         $replyTo = null;
-        foreach (['email','Email','reply_to','replyTo'] as $key) {
+        foreach (['email','Email','reply_to','replyTo','_replyto','_reply_to'] as $key) {
             if (!empty($payload[$key]) && filter_var($payload[$key], FILTER_VALIDATE_EMAIL)) {
                 $replyTo = $payload[$key];
                 break;

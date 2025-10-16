@@ -35,6 +35,7 @@ $projects = new ProjectController();
 $router->add('GET', '/app/projects', fn() => $projects->index());
 $router->add('POST', '/app/projects', fn() => $projects->create());
 $router->add('GET', '/app/projects/{id}', fn($params) => $projects->show($params));
+$router->add('POST', '/app/projects/{id}/settings', fn($params) => $projects->updateSettings($params));
 
 // Forms
 $forms = new FormController();
@@ -52,7 +53,9 @@ $router->add('POST', '/app/settings/email/test', fn() => $settings->emailTest())
 // Submissions
 $subs = new SubmissionController();
 $router->add('GET', '/app/submissions', fn() => $subs->listAll());
+$router->add('GET', '/app/submissions/export.csv', fn() => $subs->exportAllCsv());
 $router->add('GET', '/app/forms/{id}/submissions', fn($params) => $subs->listForForm($params));
+$router->add('GET', '/app/forms/{id}/submissions/export.csv', fn($params) => $subs->exportFormCsv($params));
 $router->add('GET', '/app/submissions/{id}', fn($params) => $subs->show($params));
 
 // Public capture endpoint
