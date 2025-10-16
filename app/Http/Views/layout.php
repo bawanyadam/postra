@@ -10,6 +10,17 @@ $csrf = \App\Support\Csrf::token();
     <?php $pageTitle = isset($title) && $title !== '' ? ('Postra | ' . $title) : 'Postra'; ?>
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+      /* Subtle breadcrumb link styling (less blue) */
+      .breadcrumb .breadcrumb-item a {
+        color: #6c757d; /* gray-600 */
+        text-decoration: none;
+      }
+      .breadcrumb .breadcrumb-item a:hover {
+        color: #495057; /* gray-700 */
+        text-decoration: underline;
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
