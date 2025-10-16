@@ -11,15 +11,16 @@ class Id
     {
         $timeMs = $timeMs ?? (int) floor(microtime(true) * 1000);
         $time = self::encodeInt($timeMs, 10);
-        $rand = random_bytes(16);
         // 80 bits randomness -> 16 chars base32 (padding-free for ULID)
-        $randVal = bin2hex($rand);
-        $bin = base_convert($randVal, 16, 2);
-        $bin = str_pad($bin, 128, '0', STR_PAD_LEFT);
-        $rand80 = substr($bin, 0, 80);
+        // Use 10 random bytes to avoid base_convert limitations and leading-zero loss
+        $rand = random_bytes(10); // 80 bits
+        $bits = '';
+        for ($i = 0, $len = strlen($rand); $i < $len; $i++) {
+            $bits .= str_pad(decbin(ord($rand[$i])), 8, '0', STR_PAD_LEFT);
+        }
         $out = '';
         for ($i = 0; $i < 80; $i += 5) {
-            $chunk = substr($rand80, $i, 5);
+            $chunk = substr($bits, $i, 5);
             $idx = bindec($chunk);
             $out .= self::CROCKFORD[$idx];
         }
@@ -38,4 +39,3 @@ class Id
         return $out;
     }
 }
-
