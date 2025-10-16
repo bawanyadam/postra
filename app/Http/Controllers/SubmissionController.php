@@ -28,7 +28,7 @@ class SubmissionController
         $offset = ($page - 1) * $pageSize;
 
         $pdo = Connection::pdo();
-        $form = $pdo->prepare('SELECT id, name FROM forms WHERE id = ?');
+        $form = $pdo->prepare('SELECT f.id, f.name, f.project_id, p.name AS project_name FROM forms f JOIN projects p ON p.id = f.project_id WHERE f.id = ?');
         $form->execute([$formId]);
         $formRow = $form->fetch(PDO::FETCH_ASSOC);
         if (!$formRow) { http_response_code(404); echo 'Form not found'; return; }
@@ -50,6 +50,13 @@ class SubmissionController
             'page' => $page,
             'hasNext' => $hasNext,
             'title' => 'Submissions: ' . (string)$formRow['name'],
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Projects', 'href' => '/app/projects'],
+                ['label' => (string)$formRow['project_name'], 'href' => '/app/projects/' . (int)$formRow['project_id']],
+                ['label' => (string)$formRow['name'], 'href' => '/app/forms/' . (int)$formRow['id']],
+                ['label' => 'Submissions', 'href' => '/app/forms/' . (int)$formRow['id'] . '/submissions'],
+            ],
         ]);
     }
 
@@ -78,6 +85,10 @@ class SubmissionController
             'page' => $page,
             'hasNext' => $hasNext,
             'title' => 'Submissions',
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Submissions', 'href' => '/app/submissions'],
+            ],
         ]);
     }
 
@@ -86,11 +97,21 @@ class SubmissionController
         if (!$this->requireAuth()) return;
         $id = (int)($params[0] ?? 0);
         $pdo = Connection::pdo();
-        $stmt = $pdo->prepare('SELECT s.*, INET6_NTOA(s.client_ip) AS client_ip, f.name AS form_name, f.project_id FROM submissions s JOIN forms f ON f.id = s.form_id WHERE s.id = ?');
+        $stmt = $pdo->prepare('SELECT s.*, INET6_NTOA(s.client_ip) AS client_ip, f.name AS form_name, f.project_id, p.name AS project_name FROM submissions s JOIN forms f ON f.id = s.form_id JOIN projects p ON p.id = f.project_id WHERE s.id = ?');
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$row) { http_response_code(404); echo 'Submission not found'; return; }
-        \App\Http\View::render('submissions/show', ['submission' => $row, 'title' => 'Submission #' . (string)$id]);
+        \App\Http\View::render('submissions/show', [
+            'submission' => $row,
+            'title' => 'Submission #' . (string)$id,
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Projects', 'href' => '/app/projects'],
+                ['label' => (string)$row['project_name'], 'href' => '/app/projects/' . (int)$row['project_id']],
+                ['label' => (string)$row['form_name'], 'href' => '/app/forms/' . (int)$row['form_id']],
+                ['label' => 'Submission #' . (string)$id, 'href' => '/app/submissions/' . (int)$id],
+            ],
+        ]);
     }
 
     public function exportAllCsv(): void

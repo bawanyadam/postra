@@ -27,7 +27,15 @@ class SettingsController
         $pdo = Connection::pdo();
         $stmt = $pdo->query("SELECT id FROM api_credentials WHERE provider='sendgrid' AND scope='global' LIMIT 1");
         $exists = (bool)$stmt->fetchColumn();
-        \App\Http\View::render('settings/email', ['configured' => $exists, 'title' => 'Settings: Email']);
+        \App\Http\View::render('settings/email', [
+            'configured' => $exists,
+            'title' => 'Settings: Email',
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Settings', 'href' => '/app/settings/email'],
+                ['label' => 'Email', 'href' => '/app/settings/email'],
+            ],
+        ]);
     }
 
     public function emailSave(): void

@@ -40,6 +40,20 @@ $csrf = \App\Support\Csrf::token();
     </nav>
 
     <main class="container my-4">
+      <?php if (!empty($breadcrumbs) && is_array($breadcrumbs)): ?>
+        <nav aria-label="breadcrumb" class="mb-3">
+          <ol class="breadcrumb mb-0">
+            <?php $lastIdx = count($breadcrumbs) - 1; foreach ($breadcrumbs as $i => $bc): ?>
+              <?php $label = htmlspecialchars((string)($bc['label'] ?? '')); $href = (string)($bc['href'] ?? ''); ?>
+              <?php if ($i === $lastIdx || $href === ''): ?>
+                <li class="breadcrumb-item active" aria-current="page"><?= $label ?></li>
+              <?php else: ?>
+                <li class="breadcrumb-item"><a href="<?= htmlspecialchars($href) ?>"><?= $label ?></a></li>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          </ol>
+        </nav>
+      <?php endif; ?>
       <?php if (!empty($_SESSION['flash'])): ?>
         <div class="alert alert-warning"><?= htmlspecialchars($_SESSION['flash']); unset($_SESSION['flash']); ?></div>
       <?php endif; ?>

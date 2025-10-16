@@ -25,7 +25,14 @@ class ProjectController
         if (!$this->requireAuth()) return;
         $pdo = Connection::pdo();
         $projects = $pdo->query('SELECT id, public_id, name, created_at FROM projects ORDER BY created_at DESC')->fetchAll(PDO::FETCH_ASSOC);
-        \App\Http\View::render('projects/index', ['projects' => $projects, 'title' => 'Projects']);
+        \App\Http\View::render('projects/index', [
+            'projects' => $projects,
+            'title' => 'Projects',
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Projects', 'href' => '/app/projects'],
+            ],
+        ]);
     }
 
     public function create(): void
@@ -61,7 +68,16 @@ class ProjectController
         $formsStmt = $pdo->prepare('SELECT id, public_id, name, status FROM forms WHERE project_id = ? ORDER BY created_at DESC');
         $formsStmt->execute([$id]);
         $forms = $formsStmt->fetchAll(PDO::FETCH_ASSOC);
-        \App\Http\View::render('projects/show', ['project' => $project, 'forms' => $forms, 'title' => 'Project: ' . (string)$project['name']]);
+        \App\Http\View::render('projects/show', [
+            'project' => $project,
+            'forms' => $forms,
+            'title' => 'Project: ' . (string)$project['name'],
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Projects', 'href' => '/app/projects'],
+                ['label' => (string)$project['name'], 'href' => '/app/projects/' . (int)$project['id']],
+            ],
+        ]);
     }
 
     public function updateSettings(array $params): void
