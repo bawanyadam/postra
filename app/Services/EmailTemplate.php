@@ -12,12 +12,12 @@ class EmailTemplate
     {
         $subject = 'Submission: ' . $formName;
 
-        // HTML (Fields first, then Meta)
+        // HTML (Fields first, then Meta) — force light background
         $html  = '<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;';
-        $html .= 'background:#f6f9fc;padding:24px;">';
-        $html .= '<div style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #eaeaea;border-radius:8px;';
-        $html .= 'padding:24px;">';
-        $html .= '<h1 style="margin:0 0 12px;font-size:20px;line-height:1.2;">' . htmlspecialchars($subject) . '</h1>';
+        $html .= 'background:#ffffff !important;color:#111 !important;padding:24px;">';
+        $html .= '<div style="max-width:680px;margin:0 auto;background:#ffffff !important;border:1px solid #eaeaea;border-radius:8px;';
+        $html .= 'padding:24px;color:#111 !important;">';
+        $html .= '<h1 style="margin:0 0 12px;font-size:20px;line-height:1.2;color:#111 !important;">' . htmlspecialchars($subject) . '</h1>';
         $html .= '<p style="margin:0 0 16px;color:#555">You received a new website form submission.</p>';
 
         // Fields table
@@ -42,6 +42,12 @@ class EmailTemplate
             $html .= '</tr>';
         }
         $html .= '</table>';
+
+        // Footer logo
+        $html .= '<div style="text-align:center;margin-top:20px;">';
+        $html .= '<img src="https://postra.to/images/logo.png" width="96" alt="Postra" style="display:inline-block;border:0;outline:none;text-decoration:none;">';
+        $html .= '</div>';
+
         $html .= '</div></div>';
 
         // Plain text (Fields first)
@@ -57,4 +63,3 @@ class EmailTemplate
         return [$subject, $html, $text];
     }
 }
-
