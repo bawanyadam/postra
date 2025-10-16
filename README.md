@@ -1,7 +1,7 @@
-Postra MVP
+Postra
 ===========
 
-Local MVP scaffold for an internal Formspree-like service.
+Internal form processing.
 
 Quick start
 -----------
