@@ -50,11 +50,50 @@ class CaptureController
         $clientIp = $_SERVER['REMOTE_ADDR'] ?? null;
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 
+        // Basic anti-spam measures (honeypot, timing threshold, per-IP throttle, dedupe window)
+        // Honeypot: if reserved field _postra_hp is present and non-empty, treat as success but drop silently
+        $redirect = $form['redirect_url'] ?? '/';
+        if (!empty($_POST['_postra_hp'])) {
+            header('Location: ' . $redirect, true, 303);
+            return;
+        }
+
+        // Timing threshold: if client includes _postra_ts and it is too recent, drop
+        $ts = isset($_POST['_postra_ts']) ? (int)$_POST['_postra_ts'] : 0;
+        if ($ts > 0 && (time() - $ts) < 2) { // submitted in under 2s
+            header('Location: ' . $redirect, true, 303);
+            return;
+        }
+
+        // Per-IP throttle: one submission every 10 seconds per form
+        try {
+            $throttle = $pdo->prepare('SELECT COUNT(*) FROM submissions WHERE form_id = ? AND client_ip = INET6_ATON(?) AND created_at >= (NOW() - INTERVAL 10 SECOND)');
+            $throttle->execute([$form['id'], $clientIp]);
+            if ((int)$throttle->fetchColumn() > 0) {
+                header('Location: ' . $redirect, true, 303);
+                return;
+            }
+        } catch (\Throwable $_) {
+            // best-effort only
+        }
+
         $pdo->beginTransaction();
         try {
             $ins = $pdo->prepare('INSERT INTO submissions (form_id, client_ip, user_agent, payload_json, dedupe_hash) VALUES (?, INET6_ATON(?), ?, CAST(? AS JSON), ?)');
             $normalized = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
             $dedupe = hash('sha256', $form['id'] . '|' . $normalized);
+            // Dedupe: if same hash exists in last 5 minutes, treat as already-processed (no-op)
+            try {
+                $dupe = $pdo->prepare('SELECT id FROM submissions WHERE form_id = ? AND dedupe_hash = ? AND created_at >= (NOW() - INTERVAL 5 MINUTE) LIMIT 1');
+                $dupe->execute([$form['id'], $dedupe]);
+                if ($dupe->fetchColumn()) {
+                    $pdo->rollBack();
+                    header('Location: ' . $redirect, true, 303);
+                    return;
+                }
+            } catch (\Throwable $_) {
+                // continue; dedupe is best-effort
+            }
             $ins->execute([$form['id'], $clientIp, $ua, $normalized, $dedupe]);
             $submissionId = (int)$pdo->lastInsertId();
             $pdo->commit();
@@ -76,8 +115,6 @@ class CaptureController
         } catch (\Throwable $e) {
             error_log('Email send failed: ' . $e->getMessage());
         }
-
-        $redirect = $form['redirect_url'] ?? '/';
         header('Location: ' . $redirect, true, 303);
     }
 
