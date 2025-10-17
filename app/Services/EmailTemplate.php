@@ -33,8 +33,6 @@ class EmailTemplate
         $html .= '</table>';
 
         // Meta table
-        $html .= '<h2 style="font-size:13px;margin:18px 0 8px;color:#666;text-transform:uppercase;letter-spacing:.02em;">Meta</h2>';
-        $html .= '<table role="presentation" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #eaeaea;">';
         foreach ($meta as $k => $v) {
             $html .= '<tr>';
             $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;font-weight:600;vertical-align:top;">' . htmlspecialchars((string)$k) . '</td>';
