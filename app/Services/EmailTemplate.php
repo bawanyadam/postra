@@ -26,8 +26,8 @@ class EmailTemplate
         foreach ($payload as $k => $v) {
             $val = is_array($v) ? implode(', ', array_map('strval', $v)) : (string)$v;
             $html .= '<tr>';
-            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;">' . htmlspecialchars((string)$k) . '</td>';
-            $html .= '<td style="border:1px solid #eaeaea;">' . htmlspecialchars($val) . '</td>';
+            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;vertical-align:top;">' . htmlspecialchars((string)$k) . '</td>';
+            $html .= '<td style="border:1px solid #eaeaea;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;white-space:normal;">' . htmlspecialchars($val) . '</td>';
             $html .= '</tr>';
         }
         $html .= '</table>';
@@ -37,8 +37,8 @@ class EmailTemplate
         $html .= '<table role="presentation" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #eaeaea;">';
         foreach ($meta as $k => $v) {
             $html .= '<tr>';
-            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;font-weight:600;">' . htmlspecialchars((string)$k) . '</td>';
-            $html .= '<td style="border:1px solid #eaeaea;">' . htmlspecialchars((string)$v) . '</td>';
+            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;font-weight:600;vertical-align:top;">' . htmlspecialchars((string)$k) . '</td>';
+            $html .= '<td style="border:1px solid #eaeaea;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;white-space:normal;">' . htmlspecialchars((string)$v) . '</td>';
             $html .= '</tr>';
         }
         $html .= '</table>';
