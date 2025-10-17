@@ -32,13 +32,6 @@ class EmailTemplate
         }
         $html .= '</table>';
 
-        // Meta table
-        foreach ($meta as $k => $v) {
-            $html .= '<tr>';
-            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;font-weight:600;vertical-align:top;">' . htmlspecialchars((string)$k) . '</td>';
-            $html .= '<td style="border:1px solid #eaeaea;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;white-space:normal;">' . htmlspecialchars((string)$v) . '</td>';
-            $html .= '</tr>';
-        }
         $html .= '</table>';
 
         // Footer logo
@@ -55,9 +48,6 @@ class EmailTemplate
             $val = is_array($v) ? implode(', ', array_map('strval', $v)) : (string)$v;
             $text .= $k . ': ' . $val . "\n";
         }
-        $text .= "\nMeta:\n";
-        foreach ($meta as $k => $v) { $text .= $k . ': ' . $v . "\n"; }
-
         return [$subject, $html, $text];
     }
 }
