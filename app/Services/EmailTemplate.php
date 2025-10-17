@@ -26,8 +26,8 @@ class EmailTemplate
         foreach ($payload as $k => $v) {
             $val = is_array($v) ? implode(', ', array_map('strval', $v)) : (string)$v;
             $html .= '<tr>';
-            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;vertical-align:top;">' . htmlspecialchars((string)$k) . '</td>';
-            $html .= '<td style="border:1px solid #eaeaea;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;white-space:normal;">' . htmlspecialchars($val) . '</td>';
+            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;">' . htmlspecialchars((string)$k) . '</td>';
+            $html .= '<td style="border:1px solid #eaeaea;">' . htmlspecialchars($val) . '</td>';
             $html .= '</tr>';
         }
         $html .= '</table>';
