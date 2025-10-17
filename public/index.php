@@ -24,7 +24,7 @@ $router->add('GET', '/', function () {
     header('Content-Type: text/html; charset=utf-8');
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
        . '<title>Postra</title>'
-       . '<style>html,body{height:100%;margin:0;background:#ffffff} .wrap{min-height:100%;display:grid;place-items:center} img{width:160px;max-width:60vw;height:auto;}</style>'
+       . '<style>html,body{height:100%;margin:0;background:#ffffff} .wrap{min-height:100%;display:grid;place-items:center} img{width:50%;height:auto;}</style>'
        . '</head><body><div class="wrap"><img src="/images/logo.png" alt="Postra"></div></body></html>';
 });
 
