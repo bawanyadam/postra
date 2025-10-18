@@ -65,6 +65,14 @@ class CaptureController
             return;
         }
 
+        // Simple heuristics for common spam payloads
+        $spamDetector = new \App\Services\SpamDetector();
+        if ($spamDetector->isSpam($payload)) {
+            error_log('Postra: spam drop for form ' . $form['id'] . ' from ' . ($clientIp ?? 'unknown'));
+            header('Location: ' . $redirect, true, 303);
+            return;
+        }
+
         // Per-IP throttle: one submission every 10 seconds per form
         try {
             $throttle = $pdo->prepare('SELECT COUNT(*) FROM submissions WHERE form_id = ? AND client_ip = INET6_ATON(?) AND created_at >= (NOW() - INTERVAL 10 SECOND)');
