@@ -1,4 +1,7 @@
-<?php $payload = json_decode($submission['payload_json'] ?? '[]', true) ?: []; ?>
+<?php
+$payload = json_decode($submission['payload_json'] ?? '[]', true) ?: [];
+$csrf = \App\Support\Csrf::token();
+?>
 <div class="mb-3">
   <a href="/app/forms/<?= (int)$submission['form_id'] ?>/submissions" class="text-decoration-none">← Back to Submissions</a>
 </div>
@@ -39,9 +42,16 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <h2 class="h6">Actions</h2>
-        <p class="text-muted mb-2">Future: resend email, export, delete.</p>
+        <form method="POST" action="/app/submissions/<?= (int)$submission['id'] ?>/resend" class="mb-2">
+          <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf) ?>">
+          <button class="btn btn-primary w-100" type="submit">Resend Email</button>
+        </form>
+        <a class="btn btn-outline-secondary w-100 mb-2" href="/app/submissions/<?= (int)$submission['id'] ?>/export.json">Download JSON</a>
+        <form method="POST" action="/app/submissions/<?= (int)$submission['id'] ?>/delete" onsubmit="return confirm('Delete this submission?');">
+          <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf) ?>">
+          <button class="btn btn-outline-danger w-100" type="submit">Delete Submission</button>
+        </form>
       </div>
     </div>
   </div>
 </div>
-

@@ -66,6 +66,9 @@ $router->add('GET', '/app/submissions/export.csv', fn() => $subs->exportAllCsv()
 $router->add('GET', '/app/forms/{id}/submissions', fn($params) => $subs->listForForm($params));
 $router->add('GET', '/app/forms/{id}/submissions/export.csv', fn($params) => $subs->exportFormCsv($params));
 $router->add('GET', '/app/submissions/{id}', fn($params) => $subs->show($params));
+$router->add('POST', '/app/submissions/{id}/resend', fn($params) => $subs->resendEmail($params));
+$router->add('GET', '/app/submissions/{id}/export.json', fn($params) => $subs->exportJson($params));
+$router->add('POST', '/app/submissions/{id}/delete', fn($params) => $subs->delete($params));
 
 // Public capture endpoint
 $capture = new CaptureController();

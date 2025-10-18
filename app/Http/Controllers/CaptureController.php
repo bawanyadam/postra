@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Infrastructure\Database\Connection;
+use App\Services\SubmissionMailer;
 use PDO;
 
 class CaptureController
@@ -113,50 +114,20 @@ class CaptureController
             return;
         }
         // Attempt email via SendGrid
-        try {
-            $to = (string)($form['recipient_email'] ?? '');
-            if ($to === '') {
-                error_log('Postra: form has no recipient_email; skipping email send for submission ' . $submissionId);
-            } else {
-                $this->sendEmail((int)$form['id'], $form['name'], $payload, $to, $submissionId, $clientIp, $ua);
+        $to = (string)($form['recipient_email'] ?? '');
+        if ($to === '') {
+            error_log('Postra: form has no recipient_email; skipping email send for submission ' . $submissionId);
+        } else {
+            try {
+                $mailer = new SubmissionMailer();
+                $ok = $mailer->send((int)$form['id'], (string)$form['name'], $payload, $to, $submissionId, $clientIp, $ua);
+                if (!$ok) {
+                    error_log('Postra: submission email send returned false for submission ' . $submissionId);
+                }
+            } catch (\Throwable $e) {
+                error_log('Email send failed: ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            error_log('Email send failed: ' . $e->getMessage());
         }
         header('Location: ' . $redirect, true, 303);
-    }
-
-    private function sendEmail(int $formId, string $formName, array $payload, string $to, int $submissionId, ?string $ip, ?string $ua): void
-    {
-        $pdo = Connection::pdo();
-        $prjStmt = $pdo->prepare('SELECT project_id FROM forms WHERE id = ?');
-        $prjStmt->execute([$formId]);
-        $projectId = (int)$prjStmt->fetchColumn();
-
-        $credSvc = new \App\Services\CredentialService();
-        $apiKey = $credSvc->resolveSendGridKey($formId, $projectId);
-        if (!$apiKey) {
-            error_log('No SendGrid API key configured');
-            return; // skip silently in MVP
-        }
-
-        $meta = [
-            'Submission ID' => (string)$submissionId,
-            'IP' => (string)$ip,
-            'User Agent' => (string)$ua,
-            'Form' => $formName,
-        ];
-        [$subject, $html, $text] = \App\Services\EmailTemplate::buildSubmissionEmail($formName, $payload, $meta);
-
-        $replyTo = null;
-        foreach (['email','Email','reply_to','replyTo','_replyto','_reply_to'] as $key) {
-            if (!empty($payload[$key]) && filter_var($payload[$key], FILTER_VALIDATE_EMAIL)) {
-                $replyTo = $payload[$key];
-                break;
-            }
-        }
-
-        $mailer = new \App\Infrastructure\Mail\SendGridMailer();
-        $mailer->send($apiKey, $to, $subject, $html, $text, $replyTo);
     }
 }
