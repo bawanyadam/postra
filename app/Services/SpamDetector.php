@@ -20,16 +20,37 @@ class SpamDetector
 
         $score = 0;
 
+        $strings = $this->extractStrings($payload);
+        $fieldStrings = $this->extractFieldStrings($payload);
+
         $randomTokenCount = 0;
-        foreach ($this->extractStrings($payload) as $value) {
+        foreach ($strings as $value) {
             if ($this->looksRandomToken($value)) {
                 $randomTokenCount++;
             }
         }
         if ($randomTokenCount >= 3) {
-            $score += 3;
+            $score += 4;
         } elseif ($randomTokenCount === 2) {
-            $score += 2;
+            $score += 3;
+        } elseif ($randomTokenCount === 1) {
+            $score += 1;
+        }
+
+        $gibberishNameCount = 0;
+        foreach ($fieldStrings as $key => $value) {
+            if ($this->isLikelyNameKey($key) && $this->looksRandomToken($value)) {
+                $gibberishNameCount++;
+            }
+        }
+        if ($gibberishNameCount >= 1) {
+            $score += 3;
+        }
+
+        if ($this->hasMatchingNameFields($fieldStrings)) {
+            $score += 4;
+        } elseif ($this->hasDuplicateTextValues($fieldStrings)) {
+            $score += 4;
         }
 
         if (preg_match('/<\s*a\s|href=|<\/?[a-z0-9]+\s*>/', $lc)) {
@@ -140,5 +161,155 @@ class SpamDetector
         }
 
         return false;
+    }
+
+    /**
+     * @param array<string,mixed> $payload
+     * @param string $prefix
+     * @return array<string,string>
+     */
+    private function extractFieldStrings(array $payload, string $prefix = ''): array
+    {
+        $strings = [];
+        foreach ($payload as $key => $value) {
+            $keyString = is_string($key) ? $key : (string)$key;
+            if ($this->shouldSkipKey($keyString)) {
+                continue;
+            }
+            $path = $prefix === '' ? $keyString : $prefix . '.' . $keyString;
+
+            if (is_string($value) || is_numeric($value) || $value === null) {
+                $stringValue = trim((string)$value);
+                if ($stringValue !== '') {
+                    $strings[$path] = $stringValue;
+                }
+                continue;
+            }
+            if (is_array($value)) {
+                $strings += $this->extractFieldStrings($value, $path);
+            }
+        }
+        return $strings;
+    }
+
+    private function shouldSkipKey(string $key): bool
+    {
+        $normalized = strtolower($key);
+        if (str_starts_with($normalized, '_')) {
+            return true;
+        }
+        if (str_starts_with($normalized, 'g-recaptcha')) {
+            return true;
+        }
+        if (str_starts_with($normalized, 'hcaptcha')) {
+            return true;
+        }
+        if (str_starts_with($normalized, '_postra')) {
+            return true;
+        }
+        return $normalized === 'submit';
+    }
+
+    /**
+     * @param array<string,string> $fields
+     */
+    private function hasDuplicateTextValues(array $fields): bool
+    {
+        $seen = [];
+        foreach ($fields as $key => $value) {
+            $normalized = strtolower(preg_replace('/\s+/', ' ', $value) ?? '');
+            if ($normalized === '') {
+                continue;
+            }
+            $compact = preg_replace('/\s+/', '', $normalized) ?? '';
+            if (strlen($compact) < 8) {
+                continue;
+            }
+            if (!array_key_exists($normalized, $seen)) {
+                $seen[$normalized] = $key;
+                continue;
+            }
+            if ($seen[$normalized] !== $key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param array<string,string> $fields
+     */
+    private function hasMatchingNameFields(array $fields): bool
+    {
+        $firstValues = [];
+        $lastValues = [];
+
+        foreach ($fields as $key => $value) {
+            if ($this->isLikelyFirstNameKey($key)) {
+                $firstValues[] = $value;
+            } elseif ($this->isLikelyLastNameKey($key)) {
+                $lastValues[] = $value;
+            }
+        }
+
+        if ($firstValues === [] || $lastValues === []) {
+            return false;
+        }
+
+        foreach ($firstValues as $first) {
+            foreach ($lastValues as $last) {
+                $trimmedFirst = strtolower(trim($first));
+                $trimmedLast = strtolower(trim($last));
+                if ($trimmedFirst === '' || $trimmedLast === '') {
+                    continue;
+                }
+                if ($trimmedFirst === $trimmedLast) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function normalizeKey(string $key): string
+    {
+        $normalized = strtolower($key);
+        $normalized = preg_replace('/[^a-z0-9]+/', '', $normalized) ?? $normalized;
+        return $normalized;
+    }
+
+    private function isLikelyNameKey(string $key): bool
+    {
+        $normalized = $this->normalizeKey($key);
+        if ($normalized === '') {
+            return false;
+        }
+        if (str_contains($normalized, 'company')) {
+            return false;
+        }
+        if (str_contains($normalized, 'username')) {
+            return false;
+        }
+        return str_contains($normalized, 'name');
+    }
+
+    private function isLikelyFirstNameKey(string $key): bool
+    {
+        $normalized = $this->normalizeKey($key);
+        return $normalized === 'first'
+            || str_contains($normalized, 'firstname')
+            || str_contains($normalized, 'fname')
+            || str_contains($normalized, 'givenname');
+    }
+
+    private function isLikelyLastNameKey(string $key): bool
+    {
+        $normalized = $this->normalizeKey($key);
+        return $normalized === 'last'
+            || str_contains($normalized, 'lastname')
+            || str_contains($normalized, 'lname')
+            || str_contains($normalized, 'surname')
+            || str_contains($normalized, 'familyname');
     }
 }
