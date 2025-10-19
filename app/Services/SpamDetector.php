@@ -23,6 +23,14 @@ class SpamDetector
         $strings = $this->extractStrings($payload);
         $fieldStrings = $this->extractFieldStrings($payload);
 
+        if ($this->containsUrl($strings)) {
+            return true;
+        }
+
+        if ($this->containsForbiddenKeywords($lc)) {
+            return true;
+        }
+
         $randomTokenCount = 0;
         foreach ($strings as $value) {
             if ($this->looksRandomToken($value)) {
@@ -208,6 +216,40 @@ class SpamDetector
             return true;
         }
         return $normalized === 'submit';
+    }
+
+    /**
+     * @param string[] $values
+     */
+    private function containsUrl(array $values): bool
+    {
+        foreach ($values as $value) {
+            $lower = strtolower($value);
+            if (preg_match('/https?:\/\/|ftp:\/\/|www\./', $lower)) {
+                return true;
+            }
+            if (preg_match('/(?:^|\s)(?:[a-z0-9-]+\.){1,3}(?:com|net|org|io|co|biz|info|xyz|online|shop|site|top|ru|cn|uk|us|ca|de|fr|au|jp)(?:[\/?#\s]|$)/', $lower)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function containsForbiddenKeywords(string $text): bool
+    {
+        if ($text === '') {
+            return false;
+        }
+        if (str_contains($text, 'bitcoin')) {
+            return true;
+        }
+        if (preg_match('/(^|[^a-z0-9])btc([^a-z0-9]|$)/', $text)) {
+            return true;
+        }
+        if (str_contains($text, 'crypto')) {
+            return true;
+        }
+        return false;
     }
 
     /**
