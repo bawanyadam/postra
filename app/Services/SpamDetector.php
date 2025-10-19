@@ -23,7 +23,7 @@ class SpamDetector
         $strings = $this->extractStrings($payload);
         $fieldStrings = $this->extractFieldStrings($payload);
 
-        if ($this->containsUrl($strings)) {
+        if ($this->containsUrl($fieldStrings)) {
             return true;
         }
 
@@ -219,11 +219,11 @@ class SpamDetector
     }
 
     /**
-     * @param string[] $values
+     * @param array<string,string> $fields
      */
-    private function containsUrl(array $values): bool
+    private function containsUrl(array $fields): bool
     {
-        foreach ($values as $value) {
+        foreach ($fields as $value) {
             $lower = strtolower($value);
             if (preg_match('/https?:\/\/|ftp:\/\/|www\./', $lower)) {
                 return true;
