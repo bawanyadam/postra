@@ -225,7 +225,7 @@ if ($user) {
       <?php if ($user): ?>
       <aside class="sidebar d-none d-lg-flex flex-column">
         <a class="sidebar-brand" href="/app">
-          <span>Postra</span>
+          <img src="https://postra.to/images/postra-white.png" alt="Postra" width="120" height="auto">
         </a>
         <div class="sidebar-section">
           <div class="sidebar-section-label">Forms</div>
