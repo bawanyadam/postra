@@ -69,6 +69,7 @@ $router->add('GET', '/app/submissions/{id}', fn($params) => $subs->show($params)
 $router->add('POST', '/app/submissions/{id}/resend', fn($params) => $subs->resendEmail($params));
 $router->add('GET', '/app/submissions/{id}/export.json', fn($params) => $subs->exportJson($params));
 $router->add('POST', '/app/submissions/{id}/delete', fn($params) => $subs->delete($params));
+$router->add('POST', '/app/submissions/bulk-delete', fn() => $subs->bulkDelete());
 
 // Public capture endpoint
 $capture = new CaptureController();

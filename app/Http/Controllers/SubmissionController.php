@@ -331,4 +331,69 @@ class SubmissionController
         }
         header('Location: /app/forms/' . (int)$formId . '/submissions', true, 303);
     }
+
+    public function bulkDelete(): void
+    {
+        if (!$this->requireAuth()) return;
+        if (!Csrf::validate($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid CSRF token';
+            return;
+        }
+
+        $ids = $_POST['submission_ids'] ?? [];
+        if (!is_array($ids)) {
+            $ids = is_scalar($ids) ? [$ids] : [];
+        }
+        $ids = array_values(array_unique(array_filter(array_map(
+            static fn($value): int => (int)$value,
+            $ids
+        ), static fn(int $value): bool => $value > 0)));
+        if (count($ids) > 200) {
+            $ids = array_slice($ids, 0, 200);
+        }
+
+        $returnTo = $this->sanitizeReturnTo($_POST['return_to'] ?? null);
+
+        if ($ids === []) {
+            $_SESSION['flash'] = 'Select at least one submission to delete.';
+            header('Location: ' . $returnTo, true, 303);
+            return;
+        }
+
+        $pdo = Connection::pdo();
+        try {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $pdo->prepare('DELETE FROM submissions WHERE id IN (' . $placeholders . ')');
+            $stmt->execute($ids);
+            $deleted = (int)$stmt->rowCount();
+            if ($deleted > 0) {
+                $_SESSION['flash'] = $deleted === 1 ? '1 submission deleted.' : $deleted . ' submissions deleted.';
+            } else {
+                $_SESSION['flash'] = 'No submissions were deleted.';
+            }
+        } catch (\Throwable $e) {
+            $_SESSION['flash'] = 'Failed to delete submissions: ' . $e->getMessage();
+        }
+
+        header('Location: ' . $returnTo, true, 303);
+    }
+
+    private function sanitizeReturnTo($value): string
+    {
+        if (!is_string($value)) {
+            return '/app/submissions';
+        }
+        $value = trim($value);
+        if ($value === '') {
+            return '/app/submissions';
+        }
+        if (!str_starts_with($value, '/app')) {
+            return '/app/submissions';
+        }
+        if (str_contains($value, "\n") || str_contains($value, "\r")) {
+            return '/app/submissions';
+        }
+        return $value;
+    }
 }
