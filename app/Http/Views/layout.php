@@ -23,8 +23,8 @@ if ($user) {
     <style>
       :root {
         --sidebar-width: 260px;
-        --sidebar-bg-start: #1f56d9;
-        --sidebar-bg-end: #2647a7;
+        --sidebar-bg-start: #7246ff;
+        --sidebar-bg-end: #7246ff;
         --sidebar-text: rgba(255, 255, 255, 0.86);
         --sidebar-text-muted: rgba(255, 255, 255, 0.6);
         --sidebar-active: rgba(255, 255, 255, 0.16);
