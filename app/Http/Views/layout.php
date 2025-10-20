@@ -51,6 +51,8 @@ if ($user) {
       }
 
       .sidebar {
+        flex: 0 0 var(--sidebar-width);
+        max-width: var(--sidebar-width);
         width: var(--sidebar-width);
         background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
         color: var(--sidebar-text);
