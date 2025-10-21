@@ -248,6 +248,7 @@ if ($user) {
           <img src="https://postra.to/images/postra-white.png" alt="Postra" width="120" height="auto">
         </a>
         <div class="sidebar-section">
+          <div class="sidebar-section-label">Create</div>
           <a class="sidebar-link" href="/app/projects/new">
             <span>New Project</span>
             <span class="caret" aria-hidden="true">
