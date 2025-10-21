@@ -250,11 +250,11 @@ if ($user) {
         <div class="sidebar-section">
           <div class="sidebar-section-label">Forms</div>
           <a class="sidebar-link" href="/app/projects/new">
-            <span class="d-inline-flex align-items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+            <span>New Project</span>
+            <span class="caret" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M8 1a.75.75 0 0 1 .75.75V7.25h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5H1.75a.75.75 0 0 1 0-1.5h5.5V1.75A.75.75 0 0 1 8 1z"/>
               </svg>
-              <span>New Project</span>
             </span>
           </a>
           <button class="sidebar-link sidebar-toggle<?= !empty($sidebarProjects) ? ' is-open' : '' ?>" type="button" data-sidebar-toggle="sidebar-projects" aria-expanded="<?= !empty($sidebarProjects) ? 'true' : 'false' ?>">
