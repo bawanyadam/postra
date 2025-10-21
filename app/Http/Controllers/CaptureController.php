@@ -48,7 +48,15 @@ class CaptureController
             }
         }
 
-        $clientIp = $_SERVER['REMOTE_ADDR'] ?? null;
+        // Resolve client IP (prefer CF / proxy headers when present)
+        $clientIp = null;
+        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $clientIp = $_SERVER['HTTP_CF_CONNECTING_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $xff = explode(',', (string)$_SERVER['HTTP_X_FORWARDED_FOR']);
+            $clientIp = trim($xff[0] ?? '');
+        }
+        if (!$clientIp) { $clientIp = $_SERVER['REMOTE_ADDR'] ?? null; }
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 
         // Basic anti-spam measures (honeypot, timing threshold, per-IP throttle, dedupe window)
@@ -70,6 +78,24 @@ class CaptureController
         $spamDetector = new \App\Services\SpamDetector();
         if ($spamDetector->isSpam($payload)) {
             error_log('Postra: spam drop for form ' . $form['id'] . ' from ' . ($clientIp ?? 'unknown'));
+            header('Location: ' . $redirect, true, 303);
+            return;
+        }
+
+        // Cloudflare Turnstile verification (if configured). Drop on failure.
+        try {
+            $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+            // Do not store the token in payload
+            unset($payload['cf-turnstile-response']);
+            [$ok, $tsResp] = \App\Services\TurnstileVerifier::verify((string)$turnstileToken, $clientIp);
+            if (!$ok) {
+                error_log('Postra: Turnstile failed for form ' . $form['id'] . ' ip ' . ($clientIp ?? 'unknown') . ' errs=' . json_encode($tsResp['error-codes'] ?? []));
+                header('Location: ' . $redirect, true, 303);
+                return;
+            }
+        } catch (\Throwable $e) {
+            // On verifier error, fail-closed to reduce spam
+            error_log('Postra: Turnstile verify error: ' . $e->getMessage());
             header('Location: ' . $redirect, true, 303);
             return;
         }
