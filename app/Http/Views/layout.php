@@ -248,7 +248,6 @@ if ($user) {
           <img src="https://postra.to/images/postra-white.png" alt="Postra" width="120" height="auto">
         </a>
         <div class="sidebar-section">
-          <div class="sidebar-section-label">Forms</div>
           <a class="sidebar-link" href="/app/projects/new">
             <span>New Project</span>
             <span class="caret" aria-hidden="true">
@@ -257,6 +256,10 @@ if ($user) {
               </svg>
             </span>
           </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Forms</div>
           <button class="sidebar-link sidebar-toggle<?= !empty($sidebarProjects) ? ' is-open' : '' ?>" type="button" data-sidebar-toggle="sidebar-projects" aria-expanded="<?= !empty($sidebarProjects) ? 'true' : 'false' ?>">
             <span>Projects</span>
             <span class="caret">
