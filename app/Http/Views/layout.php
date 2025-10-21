@@ -251,6 +251,7 @@ if ($user) {
             </span>
           </button>
           <div id="sidebar-projects" class="sidebar-collapsible<?= !empty($sidebarProjects) ? ' show' : '' ?>" aria-hidden="<?= empty($sidebarProjects) ? 'true' : 'false' ?>">
+            <a class="sidebar-sub-link" href="/app/projects/new">New Project</a>
             <?php if ($sidebarError): ?>
               <div class="sidebar-subtitle">Unable to load projects.</div>
             <?php elseif (empty($sidebarProjects)): ?>

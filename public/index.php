@@ -42,6 +42,7 @@ $router->add('POST', '/app/logout', fn() => $auth->logout());
 // Projects
 $projects = new ProjectController();
 $router->add('GET', '/app/projects', fn() => $projects->index());
+$router->add('GET', '/app/projects/new', fn() => $projects->newForm());
 $router->add('POST', '/app/projects', fn() => $projects->create());
 $router->add('GET', '/app/projects/{id}', fn($params) => $projects->show($params));
 $router->add('POST', '/app/projects/{id}/settings', fn($params) => $projects->updateSettings($params));

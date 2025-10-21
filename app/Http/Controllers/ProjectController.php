@@ -35,6 +35,19 @@ class ProjectController
         ]);
     }
 
+    public function newForm(): void
+    {
+        if (!$this->requireAuth()) return;
+        \App\Http\View::render('projects/new', [
+            'title' => 'New Project',
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'Projects', 'href' => '/app/projects'],
+                ['label' => 'New Project', 'href' => '/app/projects/new'],
+            ],
+        ]);
+    }
+
     public function create(): void
     {
         if (!$this->requireAuth()) return;
