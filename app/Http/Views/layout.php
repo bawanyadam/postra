@@ -249,6 +249,7 @@ if ($user) {
         </a>
         <div class="sidebar-section">
           <div class="sidebar-section-label">Forms</div>
+          <a class="sidebar-link" href="/app/projects/new">New Project</a>
           <button class="sidebar-link sidebar-toggle<?= !empty($sidebarProjects) ? ' is-open' : '' ?>" type="button" data-sidebar-toggle="sidebar-projects" aria-expanded="<?= !empty($sidebarProjects) ? 'true' : 'false' ?>">
             <span>Projects</span>
             <span class="caret">
@@ -258,7 +259,6 @@ if ($user) {
             </span>
           </button>
           <div id="sidebar-projects" class="sidebar-collapsible<?= !empty($sidebarProjects) ? ' show' : '' ?>" aria-hidden="<?= empty($sidebarProjects) ? 'true' : 'false' ?>">
-            <a class="sidebar-sub-link" href="/app/projects/new">New Project</a>
             <?php if ($sidebarError): ?>
               <div class="sidebar-subtitle">Unable to load projects.</div>
             <?php elseif (empty($sidebarProjects)): ?>
