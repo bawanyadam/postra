@@ -29,6 +29,9 @@ if ($user) {
         --sidebar-text-muted: rgba(255, 255, 255, 0.6);
         --sidebar-active: rgba(255, 255, 255, 0.16);
         --sidebar-border: rgba(255, 255, 255, 0.08);
+        /* Brand link colors */
+        --bs-link-color: #7246ff;
+        --bs-link-hover-color: #6940eb;
       }
 
       body {
@@ -171,15 +174,19 @@ if ($user) {
         }
       }
 
-      /* Subtle breadcrumb link styling (less blue) */
+      /* Breadcrumb links use brand purple */
       .breadcrumb .breadcrumb-item a {
-        color: #6c757d;
+        color: var(--bs-link-color);
         text-decoration: none;
       }
       .breadcrumb .breadcrumb-item a:hover {
-        color: #495057;
+        color: var(--bs-link-hover-color);
         text-decoration: underline;
       }
+
+      /* Ensure visited links remain brand purple */
+      a:visited { color: var(--bs-link-color); }
+      .sidebar a:visited { color: inherit; }
 
       .logout-button {
         width: 100%;
