@@ -49,6 +49,7 @@ $router->add('POST', '/app/projects/{id}/settings', fn($params) => $projects->up
 
 // Forms
 $forms = new FormController();
+$router->add('GET', '/app/forms/new', fn() => $forms->newForm());
 $router->add('POST', '/app/forms/new', fn() => $forms->create());
 $router->add('GET', '/app/forms/{id}', fn($params) => $forms->show($params));
 $router->add('POST', '/app/forms/{id}/settings', fn($params) => $forms->updateSettings($params));

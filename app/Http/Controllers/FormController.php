@@ -20,6 +20,21 @@ class FormController
         return true;
     }
 
+    public function newForm(): void
+    {
+        if (!$this->requireAuth()) return;
+        $pdo = Connection::pdo();
+        $projects = $pdo->query('SELECT id, name FROM projects ORDER BY name ASC')->fetchAll(PDO::FETCH_ASSOC);
+        \App\Http\View::render('forms/new', [
+            'projects' => $projects,
+            'title' => 'New Form',
+            'breadcrumbs' => [
+                ['label' => 'Dashboard', 'href' => '/app'],
+                ['label' => 'New Form', 'href' => '/app/forms/new'],
+            ],
+        ]);
+    }
+
     public function create(): void
     {
         if (!$this->requireAuth()) return;
@@ -28,18 +43,46 @@ class FormController
             echo 'Invalid CSRF token';
             return;
         }
+        // Determine project ID from GET (existing behavior), posted select, or create a new project inline
         $projectId = (int)($_GET['project'] ?? 0);
+        $postedProjectId = (int)($_POST['project_id'] ?? 0);
+
         $name = trim((string)($_POST['name'] ?? ''));
         $recipient = trim((string)($_POST['recipient_email'] ?? ''));
         $redirect = trim((string)($_POST['redirect_url'] ?? ''));
         $allowed = trim((string)($_POST['allowed_domain'] ?? ''));
         $status = in_array($_POST['status'] ?? 'active', ['active','disabled'], true) ? $_POST['status'] : 'active';
-        if (!$projectId || $name === '' || $recipient === '' || $redirect === '') {
+
+        // Prefer posted project selection when present
+        if ($postedProjectId > 0) {
+            $projectId = $postedProjectId;
+        }
+
+        $pdo = Connection::pdo();
+
+        // If no project specified, check if creating a new project inline
+        if ($projectId <= 0) {
+            $newProjectName = trim((string)($_POST['new_project_name'] ?? ''));
+            $newProjectDesc = trim((string)($_POST['new_project_description'] ?? ''));
+            if ($newProjectName !== '') {
+                $publicId = Id::ulid();
+                $stmt = $pdo->prepare('INSERT INTO projects (public_id, name, description) VALUES (?, ?, ?)');
+                $stmt->execute([$publicId, $newProjectName, $newProjectDesc !== '' ? $newProjectDesc : null]);
+                $projectId = (int)$pdo->lastInsertId();
+                if ($projectId <= 0) {
+                    $lookup = $pdo->prepare('SELECT id FROM projects WHERE public_id = ? LIMIT 1');
+                    $lookup->execute([$publicId]);
+                    $projectId = (int)($lookup->fetchColumn() ?: 0);
+                }
+            }
+        }
+
+        if ($projectId <= 0 || $name === '' || $recipient === '' || $redirect === '') {
             http_response_code(422);
             echo 'Missing required fields';
             return;
         }
-        $pdo = Connection::pdo();
+
         $stmt = $pdo->prepare('INSERT INTO forms (public_id, project_id, name, recipient_email, redirect_url, allowed_domain, status) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([Id::ulid(), $projectId, $name, $recipient, $redirect, $allowed !== '' ? $allowed : null, $status]);
         header('Location: /app/projects/' . $projectId, true, 303);

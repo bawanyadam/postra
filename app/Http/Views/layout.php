@@ -257,6 +257,14 @@ if ($user) {
               </svg>
             </span>
           </a>
+          <a class="sidebar-link" href="/app/forms/new">
+            <span>New Form</span>
+            <span class="caret" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 1a.75.75 0 0 1 .75.75V7.25h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5H1.75a.75.75 0 0 1 0-1.5h5.5V1.75A.75.75 0 0 1 8 1z"/>
+              </svg>
+            </span>
+          </a>
         </div>
 
         <div class="sidebar-section">
