@@ -191,6 +191,19 @@ if ($user) {
         color: var(--sidebar-text-muted);
         margin: 0.4rem 0 0.1rem 0.75rem;
       }
+
+      /* Primary button styling aligned with sidebar purple */
+      .btn-primary {
+        --bs-btn-bg: #7246ff; /* base */
+        --bs-btn-border-color: #7246ff;
+        --bs-btn-hover-bg: #6940eb; /* ~8% darker */
+        --bs-btn-hover-border-color: #6940eb;
+        --bs-btn-active-bg: #603bd6; /* ~16% darker */
+        --bs-btn-active-border-color: #603bd6;
+        --bs-btn-disabled-bg: #7246ff;
+        --bs-btn-disabled-border-color: #7246ff;
+        --bs-btn-focus-shadow-rgb: 114, 70, 255; /* focus ring */
+      }
     </style>
   </head>
   <body>
