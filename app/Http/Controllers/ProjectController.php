@@ -64,9 +64,18 @@ class ProjectController
             return;
         }
         $pdo = Connection::pdo();
+        $publicId = Id::ulid();
         $stmt = $pdo->prepare('INSERT INTO projects (public_id, name, description) VALUES (?, ?, ?)');
-        $stmt->execute([Id::ulid(), $name, $desc !== '' ? $desc : null]);
-        header('Location: /app/projects', true, 303);
+        $stmt->execute([$publicId, $name, $desc !== '' ? $desc : null]);
+
+        $projectId = (int)$pdo->lastInsertId();
+        if ($projectId <= 0) {
+            $lookup = $pdo->prepare('SELECT id FROM projects WHERE public_id = ? LIMIT 1');
+            $lookup->execute([$publicId]);
+            $projectId = (int)($lookup->fetchColumn() ?: 0);
+        }
+
+        header('Location: /app/projects/' . $projectId, true, 303);
     }
 
     public function show(array $params): void
