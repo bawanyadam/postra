@@ -26,12 +26,12 @@ class EmailTemplate
         foreach ($payload as $k => $v) {
             $val = is_array($v) ? implode(', ', array_map('strval', $v)) : (string)$v;
             $html .= '<tr>';
-            $html .= '<td style="width:180px;background:#fafafa;border:1px solid #eaeaea;">' . htmlspecialchars((string)$k) . '</td>';
-            $html .= '<td style="border:1px solid #eaeaea;">' . htmlspecialchars($val) . '</td>';
+            $html .= '<td style="background:#fafafa;border:1px solid #eaeaea;border-bottom:0;font-size:12px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:#555;">' . htmlspecialchars((string)$k) . '</td>';
+            $html .= '</tr>';
+            $html .= '<tr>';
+            $html .= '<td style="border:1px solid #eaeaea;border-top:0;">' . htmlspecialchars($val) . '</td>';
             $html .= '</tr>';
         }
-        $html .= '</table>';
-
         $html .= '</table>';
 
         // Footer logo
