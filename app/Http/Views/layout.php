@@ -76,7 +76,7 @@ if ($user) {
       }
 
       .navbar-brand-logo {
-        height: 28px;
+        height: 40px;
         width: auto;
         display: block;
       }
