@@ -29,7 +29,7 @@ $router->add('GET', '/', function () {
        . '<meta property="og:image" content="https://postra.to/images/logo-touch.png">'
        . '<meta name="twitter:image" content="https://postra.to/images/logo-touch.png">'
        . '<title>Postra</title>'
-       . '<style>html,body{height:100%;margin:0;background:#6c4cff} .wrap{min-height:100%;display:grid;place-items:center} img{width:50%;max-width:512px;height:auto;}</style>'
+       . '<style>html,body{height:100%;margin:0;background:#6c4cff} .wrap{min-height:100%;display:grid;place-items:center} img{width:50%;height:auto;}</style>'
         . '</head><body><div class="wrap"><img src="https://postra.to/images/postra-white.png" alt="Postra"></div></body></html>';
 });
 
