@@ -165,6 +165,19 @@ if ($user) {
         margin: 1.75rem 0;
       }
 
+      .embed-snippet {
+        max-width: 100%;
+      }
+
+      @media (max-width: 767.98px) {
+        .embed-snippet,
+        .embed-snippet code {
+          white-space: pre-wrap;
+          word-break: break-word;
+          overflow-wrap: anywhere;
+        }
+      }
+
       .main-content {
         flex: 1 1 auto;
         padding: 2rem 1.75rem;
