@@ -87,11 +87,19 @@ if ($user) {
       }
 
       .navbar-top .navbar-toggler {
-        border-color: rgba(255, 255, 255, 0.35);
+        border: none;
+        box-shadow: none;
+        outline: none;
       }
 
-      .navbar-top .navbar-toggler:focus {
-        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.2);
+      .navbar-top .navbar-toggler:focus,
+      .navbar-top .navbar-toggler:focus-visible {
+        box-shadow: none;
+        outline: none;
+      }
+
+      .navbar-top .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.86)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
       }
 
       .navbar-top .navbar-collapse {
