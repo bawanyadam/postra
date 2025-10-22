@@ -23,6 +23,11 @@ $router = new Router();
 $router->add('GET', '/', function () {
     header('Content-Type: text/html; charset=utf-8');
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+       . '<link rel="icon" type="image/png" href="/images/logo-touch.png" sizes="32x32">'
+       . '<link rel="icon" type="image/png" href="/images/logo-touch.png" sizes="16x16">'
+       . '<link rel="apple-touch-icon" href="/images/logo-touch.png" sizes="180x180">'
+       . '<meta property="og:image" content="https://postra.to/images/logo-touch.png">'
+       . '<meta name="twitter:image" content="https://postra.to/images/logo-touch.png">'
        . '<title>Postra</title>'
        . '<style>html,body{height:100%;margin:0;background:#ffffff} .wrap{min-height:100%;display:grid;place-items:center} img{width:50%;max-width:512px;height:auto;}</style>'
         . '</head><body><div class="wrap"><img src="/images/logo.png" alt="Postra"></div></body></html>';

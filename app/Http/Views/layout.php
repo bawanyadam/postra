@@ -17,6 +17,11 @@ if ($user) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo-touch.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo-touch.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-touch.png">
+    <meta property="og:image" content="https://postra.to/images/logo-touch.png">
+    <meta name="twitter:image" content="https://postra.to/images/logo-touch.png">
     <?php $pageTitle = isset($title) && $title !== '' ? ('Postra | ' . $title) : 'Postra'; ?>
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
