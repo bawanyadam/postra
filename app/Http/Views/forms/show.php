@@ -49,7 +49,7 @@
       <div class="card-body">
         <h2 class="h6">Embed Snippet</h2>
         <p class="text-muted">Use this in your HTML.</p>
-<pre class="bg-light p-2 border rounded"><code>&lt;form action=&quot;<?= htmlspecialchars($_ENV['APP_URL'] ?? 'http://localhost:8000') ?>/form/<?= htmlspecialchars($form['public_id']) ?>&quot; method=&quot;POST&quot;&gt;
+<pre class="bg-light p-2 border rounded" style="white-space: pre-wrap; word-break: break-word;"><code>&lt;form action=&quot;<?= htmlspecialchars($_ENV['APP_URL'] ?? 'http://localhost:8000') ?>/form/<?= htmlspecialchars($form['public_id']) ?>&quot; method=&quot;POST&quot;&gt;
   &lt;!-- Honeypot: keep empty --&gt;
   &lt;input type=&quot;hidden&quot; name=&quot;_postra_hp&quot; value=&quot;&quot;&gt;
   &lt;!-- Simple timing token --&gt;
