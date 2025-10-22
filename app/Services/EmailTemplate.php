@@ -14,9 +14,9 @@ class EmailTemplate
 
         // HTML (Fields first, then Meta) — force light background
         $html  = '<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;';
-        $html .= 'background:#ffffff !important;color:#111 !important;padding:24px;">';
+        $html .= 'background:#ffffff !important;color:#111 !important;padding:16px;">';
         $html .= '<div style="max-width:680px;margin:0 auto;background:#ffffff !important;border:1px solid #eaeaea;border-radius:8px;';
-        $html .= 'padding:24px;color:#111 !important;">';
+        $html .= 'padding:20px;color:#111 !important;">';
         $html .= '<h1 style="margin:0 0 12px;font-size:20px;line-height:1.2;color:#111 !important;">' . htmlspecialchars($subject) . '</h1>';
         $html .= '<p style="margin:0 0 16px;color:#555">You received a new website form submission.</p>';
 
