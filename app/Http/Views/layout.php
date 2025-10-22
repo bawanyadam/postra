@@ -70,6 +70,15 @@ if ($user) {
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-brand-logo {
+        height: 28px;
+        width: auto;
+        display: block;
       }
 
       .navbar-top .navbar-brand:hover,
@@ -289,7 +298,9 @@ if ($user) {
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark navbar-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/app">Postra</a>
+        <a class="navbar-brand" href="/app">
+          <img src="https://postra.to/images/postra-white.png" alt="Postra" class="navbar-brand-logo">
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
