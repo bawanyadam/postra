@@ -89,6 +89,16 @@ if ($user) {
         margin-top: 1rem;
       }
 
+      .navbar-top .sidebar-link,
+      .navbar-top .sidebar-sub-link {
+        color: var(--sidebar-text);
+      }
+
+      .navbar-top .sidebar-link:visited,
+      .navbar-top .sidebar-sub-link:visited {
+        color: var(--sidebar-text);
+      }
+
       .mobile-menu {
         width: 100%;
         color: var(--sidebar-text);
