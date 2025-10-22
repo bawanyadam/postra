@@ -91,122 +91,16 @@ if ($user) {
 
       .mobile-menu {
         width: 100%;
-        padding-bottom: 1.5rem;
         color: var(--sidebar-text);
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 0;
+        padding-bottom: 1.75rem;
       }
 
       .mobile-menu a {
         color: inherit;
         text-decoration: none;
-      }
-
-      .mobile-section {
-        margin-bottom: 1.5rem;
-      }
-
-      .mobile-section:last-child {
-        margin-bottom: 0;
-      }
-
-      .mobile-section-label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        color: var(--sidebar-text-muted);
-        margin-bottom: 0.75rem;
-      }
-
-      .mobile-link {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 0.65rem 0.75rem;
-        border-radius: 10px;
-        font-weight: 500;
-        font-size: 0.95rem;
-        color: inherit;
-        background: transparent;
-        transition: background 0.25s ease, transform 0.25s ease;
-      }
-
-      .mobile-link svg {
-        flex-shrink: 0;
-      }
-
-      .mobile-link:hover,
-      .mobile-link:focus {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateX(4px);
-      }
-
-      .mobile-link:focus {
-        outline: 2px solid rgba(255, 255, 255, 0.35);
-        outline-offset: 2px;
-      }
-
-      .mobile-toggle {
-        border: none;
-        background: transparent;
-        text-align: left;
-        color: inherit;
-        cursor: pointer;
-        appearance: none;
-      }
-
-      .mobile-toggle.is-open .caret {
-        transform: rotate(90deg);
-      }
-
-      .mobile-link .caret {
-        display: inline-flex;
-        transition: transform 0.2s ease;
-      }
-
-      .mobile-collapsible {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease, opacity 0.3s ease;
-        opacity: 0;
-        padding-left: 0.25rem;
-      }
-
-      .mobile-collapsible.show {
-        max-height: 600px;
-        opacity: 1;
-        margin-top: 0.5rem;
-      }
-
-      .mobile-subtitle {
-        font-size: 0.85rem;
-        color: var(--sidebar-text-muted);
-        padding: 0.35rem 0.35rem 0;
-      }
-
-      .mobile-sub-link {
-        display: block;
-        padding: 0.55rem 0.75rem 0.55rem 1.75rem;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        color: var(--sidebar-text-muted, rgba(255, 255, 255, 0.7));
-        transition: background 0.25s ease, color 0.25s ease;
-      }
-
-      .mobile-sub-link:hover,
-      .mobile-sub-link:focus {
-        background: rgba(255, 255, 255, 0.12);
-        color: #fff;
-      }
-
-      .mobile-user {
-        font-size: 0.95rem;
-        font-weight: 500;
-        margin-bottom: 0.75rem;
-        color: rgba(255, 255, 255, 0.85);
       }
 
       .sidebar {
@@ -392,9 +286,9 @@ if ($user) {
         <div class="collapse navbar-collapse" id="navbarNav">
           <?php if ($user): ?>
           <div class="mobile-menu">
-            <div class="mobile-section">
-              <div class="mobile-section-label">Create</div>
-              <a class="mobile-link" href="/app/projects/new">
+            <div class="sidebar-section">
+              <div class="sidebar-section-label">Create</div>
+              <a class="sidebar-link" href="/app/projects/new">
                 <span>New Project</span>
                 <span class="caret" aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
@@ -402,7 +296,7 @@ if ($user) {
                   </svg>
                 </span>
               </a>
-              <a class="mobile-link" href="/app/forms/new">
+              <a class="sidebar-link" href="/app/forms/new">
                 <span>New Form</span>
                 <span class="caret" aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
@@ -411,11 +305,10 @@ if ($user) {
                 </span>
               </a>
             </div>
-
-            <div class="mobile-section">
+            <div class="sidebar-section">
               <?php $hasMobileProjects = !empty($sidebarProjects); ?>
-              <div class="mobile-section-label">Forms</div>
-              <button class="mobile-link mobile-toggle<?= $hasMobileProjects ? ' is-open' : '' ?>" type="button" data-sidebar-toggle="mobile-projects" aria-expanded="<?= $hasMobileProjects ? 'true' : 'false' ?>">
+              <div class="sidebar-section-label">Forms</div>
+              <button class="sidebar-link sidebar-toggle<?= $hasMobileProjects ? ' is-open' : '' ?>" type="button" data-sidebar-toggle="mobile-projects" aria-expanded="<?= $hasMobileProjects ? 'true' : 'false' ?>">
                 <span>Projects</span>
                 <span class="caret">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
@@ -423,26 +316,25 @@ if ($user) {
                   </svg>
                 </span>
               </button>
-              <div id="mobile-projects" class="mobile-collapsible<?= $hasMobileProjects ? ' show' : '' ?>" aria-hidden="<?= $hasMobileProjects ? 'false' : 'true' ?>">
+              <div id="mobile-projects" class="sidebar-collapsible<?= $hasMobileProjects ? ' show' : '' ?>" aria-hidden="<?= $hasMobileProjects ? 'false' : 'true' ?>">
                 <?php if ($sidebarError): ?>
-                  <div class="mobile-subtitle">Unable to load projects.</div>
+                  <div class="sidebar-subtitle">Unable to load projects.</div>
                 <?php elseif (empty($sidebarProjects)): ?>
-                  <div class="mobile-subtitle">No projects yet.</div>
+                  <div class="sidebar-subtitle">No projects yet.</div>
                 <?php else: ?>
                   <?php foreach ($sidebarProjects as $project): ?>
-                    <a class="mobile-sub-link" href="/app/projects/<?= (int)$project['id'] ?>">
+                    <a class="sidebar-sub-link" href="/app/projects/<?= (int)$project['id'] ?>">
                       <?= htmlspecialchars((string)$project['name']) ?>
                     </a>
                   <?php endforeach; ?>
                 <?php endif; ?>
               </div>
-              <a class="mobile-link mt-2" href="/app/submissions">Submissions</a>
+              <a class="sidebar-link mt-2" href="/app/submissions">Submissions</a>
             </div>
-
-            <div class="mobile-section">
-              <div class="mobile-section-label">Account</div>
-              <div class="mobile-user">Hi, <?= htmlspecialchars($user) ?></div>
-              <a class="mobile-link" href="/app/settings/email">Settings</a>
+            <div class="sidebar-section">
+              <div class="sidebar-section-label">Account</div>
+              <div class="sidebar-subtitle">Hi, <?= htmlspecialchars($user) ?></div>
+              <a class="sidebar-link" href="/app/settings/email">Settings</a>
               <form method="POST" action="/app/logout" class="d-flex flex-column mt-2">
                 <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf) ?>">
                 <button class="btn btn-light btn-sm logout-button" type="submit">Logout</button>
